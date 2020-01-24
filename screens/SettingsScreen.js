@@ -12,7 +12,7 @@ export default function SettingsScreen() {
 }
 
 SettingsScreen.navigationOptions = {
-  title: 'Configurações',
+  title: 'Favoritos',
   headerStyle: {
     backgroundColor: Colors.barColor,
     borderBottomColor: '#000'

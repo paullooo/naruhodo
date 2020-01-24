@@ -3,75 +3,127 @@ import { FlatList, ActivityIndicator, View, StyleSheet, Image, TouchableWithoutF
 import { Audio } from 'expo-av';
 import Colors from '../constants/Colors';
 
-export default class EpisodeScreen extends React.Component {
 
-  constructor(props){
+export default class EpisodeScreen extends React.Component {
+  
+  soundObject = new Audio.Sound();
+
+  constructor(props) {
     super(props);
-    this.state = { isLoading: true }
-    this.onPlaybackStatusUpdate = null
+    this.state = { isLoading: true,
+                   playerStatus: false }
+    this.soundObject.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
   }
 
   async showItemDetails(object) {
+    // this.props.navigation.navigate('Detail', {
+    //   episode: object
+    // });
 
-      const soundObject = new Audio.Sound();
-      try {
-        soundObject.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate);
-        await soundObject.loadAsync({ uri: object.enclosure.link });
-        await soundObject.playAsync();
-      } catch (error) {
-        console.log(error)
+    try {
+      if (this.state.playerStatus.isPlaying) {
+        this.stopContent()
+        return
       }
+      this.loadContent(object)
+    } catch (error) {
+      console.log(`RELOAD ERROR: ${error}`)
+    }
 
   }
 
+  async playContent() {
+    try {
+      await this.soundObject.playAsync()
+    } catch (error) {
+      console.log(`PLAY ERROR: ${error}`)
+    }
+  }
+
+  async loadContent(object) {
+      try {
+        await this.soundObject.loadAsync({ uri: object.enclosure.url });
+      } catch (error) {
+        console.log(`LOAD ERROR: ${error}`)
+      }
+  }
+
+  async stopContent() {
+    try {
+      await this.soundObject.unloadAsync()
+    } catch (error) {
+      console.log(`STOP ERROR: ${error}`)
+    }
+  }
+
+  _onPlaybackStatusUpdate = status => {
+    this.state.playerStatus = status
+    if(status.isLoaded && !status.isPlaying) {
+      this.playContent()
+    }
+    if (status.error) {
+      console.log(`FATAL PLAYER ERROR: ${status.error}`);
+    }
+  };
+
   componentDidMount() {
 
-    return fetch('https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Ffeeds.feedburner.com%2Fnaruhodopodcast')
+    Audio.setAudioModeAsync({
+      staysActiveInBackground: true,
+      allowsRecordingIOS: false,
+      interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_MIX_WITH_OTHERS,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+    });
+
+    return fetch('https://tranquil-sea-89168.herokuapp.com')
       .then((response) => response.json())
       .then((responseJson) => {
 
         this.setState({
           isLoading: false,
-          dataSource: responseJson.items,
-        }, function(){
+          dataSource: responseJson,
+        }, function () {
         });
 
       })
-      .catch((error) =>{
+      .catch((error) => {
         console.error(error);
       });
 
   }
 
-  render(){
+  render() {
 
-    if(this.state.isLoading) {
-      return(
-        <View style={{flex: 1, padding: 20}}>
-          <ActivityIndicator/>
+    if (this.state.isLoading) {
+      return (
+        <View style={{ flex: 1, padding: 20 }}>
+          <ActivityIndicator />
         </View>
       )
     }
 
-    return(
+    return (
       <View style={styles.container}>
         <FlatList
           data={this.state.dataSource}
           numColumns={2}
           showsVerticalScrollIndicator={false}
           renderItem={
-            ({item}) => (
-                <TouchableWithoutFeedback  onPress ={() => this.showItemDetails(item)}>
-                    <View style={styles.listItem}>
-                        <Image
-                            style={styles.imageCell}
-                            source={{uri: item.thumbnail}}
-                        />
-                    </View>
-                </TouchableWithoutFeedback>
+            ({ item }) => (
+              <View style={styles.listItem}>
+              <TouchableWithoutFeedback onPress={() => this.showItemDetails(item)}>
+                  <Image
+                    style={styles.imageCell}
+                    source={{ uri: item.itunes.image }}
+                  />
+              </TouchableWithoutFeedback>
+              {/* <ActivityIndicator /> */}
+              </View>
             )
-        }
-          keyExtractor={({item}, index) => index }
+          }
+          keyExtractor={({ item }, index) => index}
         />
       </View>
     );
@@ -94,7 +146,8 @@ EpisodeScreen.navigationOptions = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
     backgroundColor: Colors.backgroundColor,
   },
   imageCell: {

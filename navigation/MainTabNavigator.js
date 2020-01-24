@@ -7,6 +7,7 @@ import TabBarIcon from '../components/TabBarIcon';
 import EpisodeScreen from '../screens/EpisodeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import Colors from '../constants/Colors';
+import DetailScreen from '../screens/DetailScreen';
 
 const config = Platform.select({
   web: { headerMode: 'screen' },
@@ -16,20 +17,21 @@ const config = Platform.select({
 const LinksStack = createStackNavigator(
   {
     Links: EpisodeScreen,
+    Detail: DetailScreen
   },
   config
 );
 
 LinksStack.navigationOptions = {
- tabBarLabel: 'Episódios',
- tabBarOptions: {
-  style: {
-    backgroundColor: Colors.barColor,
-    borderTopColor: '#000',
+  tabBarLabel: 'Episódios',
+  tabBarOptions: {
+    style: {
+      backgroundColor: Colors.barColor,
+      borderTopColor: '#000',
+    },
+    activeTintColor: '#fff',
   },
-  activeTintColor: '#fff',
- },
- tabBarIcon: ({ focused }) => (
+  tabBarIcon: ({ focused }) => (
     <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-albums' : 'md-albums'} />
   ),
 };
@@ -44,7 +46,7 @@ const SettingsStack = createStackNavigator(
 );
 
 SettingsStack.navigationOptions = {
-  tabBarLabel: 'Settings',
+  tabBarLabel: 'Favoritos',
   tabBarOptions: {
     style: {
       backgroundColor: Colors.barColor,
@@ -53,7 +55,7 @@ SettingsStack.navigationOptions = {
     activeTintColor: '#fff',
   },
   tabBarIcon: ({ focused }) => (
-    <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'} />
+    <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-heart' : 'md-heart'} />
   ),
 };
 
