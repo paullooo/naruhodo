@@ -21,11 +21,11 @@ export default class DetailScreen extends React.Component {
 }
 
 DetailScreen.navigationOptions = {
-  title: 'Detail',
+  title: 'Naruhodo!',
+  headerBackTitle: 'Voltar',
   headerStyle: {
     backgroundColor: Colors.barColor,
-    borderBottomColor: '#000'
-
+    borderBottomColor: '#000',
   },
   headerTintColor: '#fff',
   headerTitleStyle: {

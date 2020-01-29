@@ -11,7 +11,6 @@ import LoginScreen from './screens/LoginScreen';
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
-  // let isLogged = localStorage.getItem("session")
   let isLogged = true
   
   if (!isLoadingComplete && !props.skipLoadingScreen) {
@@ -70,6 +69,6 @@ function handleFinishLoading(setLoadingComplete) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
   },
 });
